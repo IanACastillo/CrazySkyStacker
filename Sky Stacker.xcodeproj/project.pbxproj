@@ -19,7 +19,6 @@
 				Actions.sks,
 				Assets.xcassets,
 				GameScene.sks,
-				GameScene.swift,
 			);
 			target = 4886E8542D7A375D00B760E0 /* Sky Stacker iOS */;
 		};
@@ -29,7 +28,6 @@
 				Actions.sks,
 				Assets.xcassets,
 				GameScene.sks,
-				GameScene.swift,
 			);
 			target = 4886E8652D7A375D00B760E0 /* Sky Stacker tvOS */;
 		};
@@ -39,7 +37,6 @@
 				Actions.sks,
 				Assets.xcassets,
 				GameScene.sks,
-				GameScene.swift,
 			);
 			target = 4886E8752D7A375D00B760E0 /* Sky Stacker macOS */;
 		};
@@ -294,7 +291,7 @@
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -324,7 +321,7 @@
 				INFOPLIST_KEY_UIStatusBarHidden = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
