@@ -25,6 +25,11 @@ class GameViewController: UIViewController {
         }
     }
     
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        // Restart any tasks that were paused while the application was inactive.
+        GameCenterManager.shared.authenticateLocalPlayer()
+    }
+
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return .portrait
     }
