@@ -40,6 +40,20 @@
 			);
 			target = 4886E8752D7A375D00B760E0 /* Sky Stacker macOS */;
 		};
+		48EA92ED2D9B788D00B22254 /* Exceptions for "Sky Stacker iOS" folder in "Sky Stacker tvOS" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resources/coinSound.mp3,
+			);
+			target = 4886E8652D7A375D00B760E0 /* Sky Stacker tvOS */;
+		};
+		48EA92EE2D9B788D00B22254 /* Exceptions for "Sky Stacker iOS" folder in "Sky Stacker macOS" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Resources/coinSound.mp3,
+			);
+			target = 4886E8752D7A375D00B760E0 /* Sky Stacker macOS */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -55,6 +69,10 @@
 		};
 		4886E8572D7A375D00B760E0 /* Sky Stacker iOS */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				48EA92ED2D9B788D00B22254 /* Exceptions for "Sky Stacker iOS" folder in "Sky Stacker tvOS" target */,
+				48EA92EE2D9B788D00B22254 /* Exceptions for "Sky Stacker iOS" folder in "Sky Stacker macOS" target */,
+			);
 			path = "Sky Stacker iOS";
 			sourceTree = "<group>";
 		};
@@ -283,7 +301,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Sky Stacker iOS/Sky Stacker iOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = J9Q8455K3C;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.arcade-games";
@@ -298,7 +316,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "ian.castillo.Sky-Stacker";
 				PRODUCT_NAME = "Sky Stacker";
 				SDKROOT = iphoneos;
@@ -315,7 +333,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = "Sky Stacker iOS/Sky Stacker iOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = J9Q8455K3C;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.arcade-games";
@@ -330,7 +348,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.5;
+				MARKETING_VERSION = 2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "ian.castillo.Sky-Stacker";
 				PRODUCT_NAME = "Sky Stacker";
 				SDKROOT = iphoneos;

@@ -11,8 +11,18 @@ import GameKit  // Needed for GKGameCenterControllerDelegate
 
 class GameScene: SKScene, GKGameCenterControllerDelegate {
     
+    // Declare new instance properties at the top of your GameScene class.
+    var instructionsLabel: SKLabelNode?
+    var gameStarted = false
+    
+    var blocksDroppedCount = 0
+    
+    var coinThreshold: Int = 50
+    
     let viewModel = GameViewModel()
-    var currentBlockNode: SKSpriteNode?
+    var currentBlockNode: SKShapeNode?
+    
+    var lastCoinEffectScore: Int = 0
     
     // Camera node
     let cameraNode = SKCameraNode()
@@ -38,6 +48,12 @@ class GameScene: SKScene, GKGameCenterControllerDelegate {
     let tangerine = SKColor(red: 1.0, green: 0.6, blue: 0.0, alpha: 1.0)
     
     override func didMove(to view: SKView) {
+        // Show the title screen.
+        showTitleScreen()
+        
+        // Show scrolling instructions.
+        showInstructions()
+        
         // Authenticate the local Game Center player
         GameCenterManager.shared.authenticateLocalPlayer()
         
@@ -46,7 +62,7 @@ class GameScene: SKScene, GKGameCenterControllerDelegate {
         backgroundMusic.autoplayLooped = true
         cameraNode.addChild(backgroundMusic)
         
-        // Set a blue background
+        // Set a blue background and physics gravity
         backgroundColor = .blue
         physicsWorld.gravity = CGVector(dx: 0, dy: -9.8)
         
@@ -83,6 +99,13 @@ class GameScene: SKScene, GKGameCenterControllerDelegate {
             self?.gameOver(finalScore: finalScore)
         }
         
+        // **Set up coin effect callback here:**
+        viewModel.onCoinEffect = { [weak self] in
+            guard let self = self else { return }
+            let coinOrigin = self.currentBlockNode?.position ?? CGPoint(x: self.size.width / 2, y: self.size.height / 2)
+            self.spawnCoinEffect(at: coinOrigin)
+        }
+        
         // Start game state
         viewModel.startGame()
         
@@ -100,7 +123,72 @@ class GameScene: SKScene, GKGameCenterControllerDelegate {
             }
         }
     }
-
+    
+    func showTitleScreen() {
+        // Create a container node for the title.
+        let titleContainer = SKNode()
+        titleContainer.position = CGPoint(x: size.width / 2, y: size.height / 2)
+        titleContainer.zPosition = 10000  // Ensure it appears above all other nodes.
+        addChild(titleContainer)
+        
+        // Use your custom Star Wars–style font.
+        // Make sure you've added the font file (e.g., "Starjedi.ttf") to your project,
+        // and that you've updated Info.plist with its name under "Fonts provided by application".
+        let customFontName = "Starjedi"  // Replace with the exact name of your custom font.
+        let fontSize: CGFloat = 80       // Adjust for the desired size.
+        let textColor = SKColor.white    // Main text color.
+        let shadowColor = SKColor.gray.withAlphaComponent(0.7)  // For a cool 3D effect.
+        let shadowOffset = CGPoint(x: 4, y: -4)  // Adjust offset for your desired look.
+        
+        // Helper function to create a 3D-styled label using the custom font.
+        func create3DTitleLabel(text: String) -> SKNode {
+            let container = SKNode()
+            
+            // Shadow label for the 3D effect.
+            let shadowLabel = SKLabelNode(fontNamed: customFontName)
+            shadowLabel.text = text
+            shadowLabel.fontSize = fontSize
+            shadowLabel.fontColor = shadowColor
+            shadowLabel.position = shadowOffset
+            shadowLabel.zPosition = 0
+            
+            // Main label.
+            let mainLabel = SKLabelNode(fontNamed: customFontName)
+            mainLabel.text = text
+            mainLabel.fontSize = fontSize
+            mainLabel.fontColor = textColor
+            mainLabel.position = CGPoint.zero
+            mainLabel.zPosition = 1
+            
+            container.addChild(shadowLabel)
+            container.addChild(mainLabel)
+            return container
+        }
+        
+        // Create three lines for the title.
+        let line1 = create3DTitleLabel(text: "Crazy")
+        let line2 = create3DTitleLabel(text: "Sky")
+        let line3 = create3DTitleLabel(text: "Stacker")
+        
+        // Arrange the lines vertically with space between them.
+        line1.position = CGPoint(x: 0, y: fontSize)
+        line2.position = CGPoint(x: 0, y: 0)
+        line3.position = CGPoint(x: 0, y: -fontSize)
+        
+        titleContainer.addChild(line1)
+        titleContainer.addChild(line2)
+        titleContainer.addChild(line3)
+        
+        // Animate the title: fade in, hold, then fade out and remove.
+        titleContainer.alpha = 0
+        let fadeIn = SKAction.fadeIn(withDuration: 1.0)
+        let wait = SKAction.wait(forDuration: 2.0)
+        let fadeOut = SKAction.fadeOut(withDuration: 1.0)
+        let remove = SKAction.removeFromParent()
+        let sequence = SKAction.sequence([fadeIn, wait, fadeOut, remove])
+        titleContainer.run(sequence)
+    }
+    
     // MARK: - GKGameCenterControllerDelegate
     func gameCenterViewControllerDidFinish(_ gameCenterViewController: GKGameCenterViewController) {
         gameCenterViewController.dismiss(animated: true) { [weak self] in
@@ -109,6 +197,25 @@ class GameScene: SKScene, GKGameCenterControllerDelegate {
                 self?.view?.isPaused = false
             }
         }
+    }
+    
+    func showInstructions() {
+        // Create an instruction label using your custom Star Wars–style font.
+        let instructions = SKLabelNode(fontNamed: "Starjedi")  // Ensure this matches your custom font's name.
+        instructions.text = "Start scrolling to begin"
+        instructions.fontSize = 40
+        instructions.fontColor = .white
+        // Position it below the title screen (adjust as needed).
+        instructions.position = CGPoint(x: size.width / 2, y: size.height / 2 - 150)
+        instructions.zPosition = 10000  // Make sure it’s above all other nodes.
+        addChild(instructions)
+        instructionsLabel = instructions
+        
+        // Add a blinking effect to attract attention.
+        let fadeOut = SKAction.fadeAlpha(to: 0.3, duration: 0.8)
+        let fadeIn = SKAction.fadeAlpha(to: 1.0, duration: 0.8)
+        let blink = SKAction.sequence([fadeOut, fadeIn])
+        instructions.run(SKAction.repeatForever(blink))
     }
     
     // MARK: - 3D Label Helper Function
@@ -198,9 +305,19 @@ class GameScene: SKScene, GKGameCenterControllerDelegate {
     }
     
     // MARK: - Block Node Management
-    func createBlockNode(for block: Block) -> SKSpriteNode {
-        let node = SKSpriteNode(color: tangerine, size: block.size)
+    func createBlockNode(for block: Block) -> SKShapeNode {
+        // Calculate a corner radius (adjust the multiplier for desired rounding)
+        let cornerRadius = min(block.size.width, block.size.height) * 0.3
+        let node = SKShapeNode(rectOf: block.size, cornerRadius: cornerRadius)
+        
+        // Set fill color to your tangerine and add a white stroke for the rounded corners
+        node.fillColor = tangerine
+        node.strokeColor = .white
+        node.lineWidth = 4  // Adjust as needed for a thicker or thinner white outline
+        
         node.position = block.position
+        
+        // Set up the physics body similar to before
         node.physicsBody = SKPhysicsBody(rectangleOf: block.size)
         node.physicsBody?.affectedByGravity = false
         return node
@@ -387,20 +504,34 @@ class GameScene: SKScene, GKGameCenterControllerDelegate {
         }
     }
     
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        // When the player scrolls for the first time, remove the instructions.
+        if !gameStarted {
+            gameStarted = true
+            instructionsLabel?.removeFromParent()
+            // Optionally, reveal the score and fail labels here.
+            scoreContainer.isHidden = false
+            failContainer.isHidden = false
+        }
+        // You could also use scrolling to control other aspects of your game here.
+    }
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        // If the game hasn't started yet, ignore tap input.
+        if !gameStarted { return }
+        
         guard let touch = touches.first, let _ = view else { return }
         let locationInCamera = touch.location(in: cameraNode)
         
         if isGameOver {
-            // Check if the restart button was tapped.
+            // Handle restart and leaderboard taps.
             if let restartContainer = restartContainer, restartContainer.contains(locationInCamera) {
                 restartGame()
                 return
             }
-            // Check if the leaderboard button was tapped.
             if let leaderboardContainer = leaderboardContainer, leaderboardContainer.contains(locationInCamera) {
                 if let viewController = self.view?.window?.rootViewController {
-                    self.view?.isPaused = true  // Pause the scene before presenting the leaderboard
+                    self.view?.isPaused = true  // Pause the scene before presenting the leaderboard.
                     GameCenterManager.shared.showLeaderboard(from: viewController, delegate: self)
                 }
                 return
@@ -408,13 +539,9 @@ class GameScene: SKScene, GKGameCenterControllerDelegate {
             return
         }
         
-        // On first tap, unhide the 3D labels.
-        if scoreContainer.isHidden {
-            scoreContainer.isHidden = false
-            failContainer.isHidden = false
-        }
-        
+        // The game is now running, so perform the block drop.
         viewModel.dropCurrentBlock()
+        
         currentBlockNode?.removeFromParent()
         if let newBlock = viewModel.getCurrentBlock(), !isGameOver {
             currentBlockNode = createBlockNode(for: newBlock)
@@ -428,4 +555,35 @@ class GameScene: SKScene, GKGameCenterControllerDelegate {
         scene.scaleMode = .resizeFill
         return scene
     }
+}
+
+
+private extension GameScene {
+    func spawnCoinEffect(at position: CGPoint) {
+        // Play coin sound effect.
+        run(SKAction.playSoundFileNamed("coinSound.mp3", waitForCompletion: false))
+        
+        // Spawn multiple coins for the explosion effect.
+        for _ in 1...10 {
+            let coin = SKSpriteNode(imageNamed: "coin")
+            coin.position = position
+            coin.zPosition = 5000  // Ensure coins appear above other game elements.
+            coin.setScale(0.5)    // Adjust the scale as needed.
+            addChild(coin)
+            
+            // Determine a random direction and distance.
+            let angle = CGFloat.random(in: 0...2 * .pi)
+            let distance = CGFloat.random(in: 100...200)
+            let dx = cos(angle) * distance
+            let dy = sin(angle) * distance
+            
+            // Animate the coin: move outward and fade out.
+            let moveAction = SKAction.moveBy(x: dx, y: dy, duration: 0.8)
+            let fadeOut = SKAction.fadeOut(withDuration: 0.8)
+            let group = SKAction.group([moveAction, fadeOut])
+            let remove = SKAction.removeFromParent()
+            coin.run(SKAction.sequence([group, remove]))
+        }
+    }
+    
 }

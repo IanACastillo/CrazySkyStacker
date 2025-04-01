@@ -9,6 +9,12 @@ import SpriteKit
 
 class GameViewModel {
     
+    // Callback to trigger a coin effect in the view.
+    var onCoinEffect: (() -> Void)?
+
+    // The next score threshold at which the coin effect should fire.
+    var coinScoreThreshold: Int = 50
+    
     private var model = GameModel()
     
     // Configuration for game difficulty and experience
@@ -158,24 +164,37 @@ class GameViewModel {
         
         // Save the dropped (or trimmed) block
         model.blocks.append(currentBlock)
+        
+        // --- Coin effect logic based on score ---
+        // Trigger the coin effect when the score has reached or exceeded the current threshold.
+        while model.score >= coinScoreThreshold {
+            onCoinEffect?()
+            coinScoreThreshold += 50
+        }
+        
+        // Update UI callbacks.
         onScoreUpdate?(model.score)
         onFailUpdate?(model.failCount)
         onBlockDropped?(currentBlock)
         
         updateDifficulty()
         
-        // Toggle the starting side for the next block
+        // Toggle starting side for the next block and create a new moving block.
         isNextBlockFromLeft.toggle()
         model.currentBlock = createMovingBlock()
     }
+
     
     // Increase the block movement speed based on score thresholds
     private func updateDifficulty() {
         if model.score >= 150 {
-            blockMoveSpeed = 400.0
+            blockMoveSpeed = 250.0
         }
-        if model.score >= 500 {
-            blockMoveSpeed = 800.0
+        if model.score >= 200 {
+            blockMoveSpeed = 300.0
+        }
+        if model.score >= 300 {
+            blockMoveSpeed = 350.0
         }
     }
     
